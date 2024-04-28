@@ -1,11 +1,54 @@
-{
-	"folders": [
-		{
-			"path": "The-impact-of-FDI-on-startup-intentions-in-Southeast-Asia"
-		},
-		{
-			"path": "."
-		}
-	],
-	"settings": {}
-}
+title: "PCA"
+author: "An"
+date: "`r Sys.Date()`"
+output: html_document
+---
+data<-read.csv("C://Users//Admin//Desktop//data1 .csv")
+View(data)
+
+# Phân tích thành phần chính
+# lựa chọn biến phân tích
+install.packages("dplyr")
+library(dplyr)
+pca <- select(data, rol, ps, ge, rq, coc, va)
+head(pca)
+
+#loại bỏ missing
+pca_new<- na.omit(pca)
+head(pca_new)
+
+#ma trận hệ số tương quan
+cor_mat=cor(pca_new, use="complete.obs")
+round(cor_mat, 3)
+
+#kiểm định Barlett's: H0: no correlation b/w vars
+#install.packages("psych")
+library(psych)
+cortest.bartlett(pca_new)
+
+#hệ số KMO 
+KMO(pca_new)
+
+#Xác định ma trận đầu vào
+install.packages("FactoMineR")
+library(FactoMineR)
+install.packages("factoextra")
+library(factoextra)
+library(ggplot2)
+res.pca <- PCA(pca_new, graph = FALSE)
+summary(res.pca)
+#eigenvalues
+eig.val <-get_eigenvalue(res.pca)
+eig.val
+# Scree-plot ( để xđ số TPC dc giữu lại) (đồ thị dốc)
+install.packages("cli", version="3.6.1")
+fviz_eig(res.pca, addlabels = TRUE, ylim=c(0, 70))
+var <- get_pca_var(res.pca)
+
+# Contributions of variables to PC1
+fviz_contrib(res.pca, choice = "var", axes = 1)
+# Contributions of variables to PC2
+fviz_contrib(res.pca, choice = "var", axes = 2)
+# vòng tròn tương quan
+fviz_pca_var(res.pca, col.var = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"))
